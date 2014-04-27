@@ -24,7 +24,7 @@ public:
     LibGostCL();
     ~LibGostCL();
 
-    bool SetSBoxes (const std::list & sboxes);
+    bool SetSBoxes (const std::list <int> & sboxes);
 
     bool SetEncryptionKey (const std::string & key);
 

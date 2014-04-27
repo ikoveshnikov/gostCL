@@ -1,6 +1,8 @@
 #include "libgostcl.h"
 
 
-LibGostCL::LibGostCL()
+GostCL::LibGostCL::LibGostCL()
+    : errorHappen (false)
+    , errorCode (0)
 {
 }
