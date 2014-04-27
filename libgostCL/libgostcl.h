@@ -24,9 +24,9 @@ public:
     LibGostCL();
     ~LibGostCL();
 
-    bool SetSBoxes ();
+    bool SetSBoxes (const std::list & sboxes);
 
-    bool SetKey ();
+    bool SetEncryptionKey (const std::string & key);
 
     bool Encrypt (const std::list * const data,
                   ModeOfOperation mode = ECB,
