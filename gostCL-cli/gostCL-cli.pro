@@ -4,9 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core gui
 
-QT       -= gui
+CONFIG += c++11
 
 TARGET = gostCL-cli
 CONFIG   += console
