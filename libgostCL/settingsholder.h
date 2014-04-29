@@ -2,6 +2,7 @@
 #define SETTINGSHOLDER_H
 
 #include <list>
+#include <vector>
 #include <string>
 
 #if defined (_MSC_VER)
@@ -21,8 +22,9 @@ public:
            }
     // } singleton
 
-    bool SetSBoxes (const std::list <int> & sboxes);
-    bool GetSBoxes (std::list <> sboxes) const;
+    bool SetSBoxes (std::vector <std::vector <int> > & sboxes);
+    bool SetSboxes (const std::string & idSet);
+    std::list <std::list <int> > GetSBoxes () const;
 
     bool SetKey (const std::string & key);
     std::string GetKey () const;
@@ -37,7 +39,7 @@ private:
 
     bool customSBoxesSet;
     std::string encryptionKey;
-    std::list <int> sboxes;
+    std::vector <std::vector <int> > sboxes;
 };
 
 #endif // SETTINGSHOLDER_H
