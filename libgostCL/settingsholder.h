@@ -15,7 +15,7 @@ class SettingsHolder
 {
 public:
     //singleton pattern: {
-    static const SettingsHolder& Instance()
+    static SettingsHolder& Instance()
            {
                    static SettingsHolder theSingleInstance;
                    return theSingleInstance;
@@ -50,7 +50,7 @@ public:
         //was sugested for ISO/IEC 18033-3 (international standartisation attempt of gost)
     }; //enum
 
-    bool SetSBoxes (std::vector <std::vector <int> > & boxes);
+    bool SetSBoxes (const std::vector <std::vector <int> > & boxes);
     bool SetStandartSBoxes (SBoxesID idSet = id_GostR3411_94_TestParamSet);
 
     std::vector <std::vector <int> > GetSBoxes () const;

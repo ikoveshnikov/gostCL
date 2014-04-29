@@ -3,7 +3,7 @@
 
 #include <string>
 
-static std::string GetErrorMessage (int errorCode);
+std::string GetErrorMessage (int errorCode);
 
 
 #endif // ERRORMESSAGES_H

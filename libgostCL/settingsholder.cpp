@@ -175,7 +175,7 @@ bool SettingsHolder::SetStandartSBoxes(SBoxesID idSet)
     return true;
 }
 
-bool SettingsHolder::SetSBoxes(std::vector<std::vector<int> > &boxes)
+bool SettingsHolder::SetSBoxes(const std::vector<std::vector<int> > &boxes)
 {
     lastError = 1;
     if (boxes.size() != 8)
@@ -229,7 +229,7 @@ bool SettingsHolder::SetSBoxes(std::vector<std::vector<int> > &boxes)
         }
     }
 
-    boxes.clear();
+    sboxes.clear();
     sboxes = boxes;
     customSBoxesSet = true;
     lastError = 0;
