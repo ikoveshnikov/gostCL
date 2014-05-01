@@ -11,6 +11,10 @@ std::string GetErrorMessage(int errorCode)
         return std::string ("Cannot set user defined SBoxes: format is wrong");
         break;
 
+    case 2:
+        return std::string ("Encryption key is not set");
+        break;
+
     default:
         return std::string ("Unknown error");
         break;
