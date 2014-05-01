@@ -3,29 +3,28 @@
 
 #include "libgostcl_global.h"
 
-extern "c" {
+extern "C" {
 
-bool LIBGOSTCLSHARED_EXPORT SetSBoxes (const int & sboxes[]);
+int LIBGOSTCLSHARED_EXPORT SetSBoxes (const char * const standartID);
 
-bool LIBGOSTCLSHARED_EXPORT SetEncryptionKey (const char * const key);
+void LIBGOSTCLSHARED_EXPORT SetEncryptionKey (const char * const key);
 
-bool LIBGOSTCLSHARED_EXPORT
+int LIBGOSTCLSHARED_EXPORT
     Encrypt (const char * const data,
               int mode = 0,
               int threads = 1,
-              int theadSize = -1); // in megabytes
+              int theadSize = -1,
+              char * errorStr = 0); // in megabytes
 
-bool LIBGOSTCLSHARED_EXPORT
+int LIBGOSTCLSHARED_EXPORT
     Decrypt (const char * const data,
               int mode = 0,
               int threads = 1,
-              int theadSize = -1);
+              int theadSize = -1,
+              char * errorStr = 0);
 
-bool LIBGOSTCLSHARED_EXPORT
-    GetResult (const char * data) const;
-
-char *  LIBGOSTCLSHARED_EXPORT GetErrorString () const;
-
+int LIBGOSTCLSHARED_EXPORT
+    GetResult (const char * data);
 
 }
 
