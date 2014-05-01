@@ -31,13 +31,13 @@ public:
                   const std::list <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
-                  int theadSize = -1); // in megabytes
+                  int threadSize = -1); // in megabytes
 
     bool Decrypt (const std::list <unsigned char> * const data,
                   const std::list <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
-                  int theadSize = -1);
+                  int threadSize = -1);
 
     std::string GetErrorString ();
 
