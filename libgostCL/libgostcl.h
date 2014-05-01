@@ -27,17 +27,17 @@ public:
 
     bool SetEncryptionKey (const std::string & key);
 
-    bool Encrypt (const std::list <int> * const data,
+    bool Encrypt (const std::list <unsigned char> * const data,
+                  const std::list <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int theadSize = -1); // in megabytes
 
-    bool Decrypt (const std::list <int> * const data,
+    bool Decrypt (const std::list <unsigned char> * const data,
+                  const std::list <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int theadSize = -1);
-
-    bool GetResult (std::list <int> * data) const;
 
     std::string GetErrorString ();
 

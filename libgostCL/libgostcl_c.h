@@ -11,20 +11,22 @@ void LIBGOSTCLSHARED_EXPORT SetEncryptionKey (const char * const key);
 
 int LIBGOSTCLSHARED_EXPORT
     Encrypt (const char * const data,
-              int mode = 0,
-              int threads = 1,
-              int theadSize = -1,
-              char * errorStr = 0); // in megabytes
+             unsigned long datasize,
+             const char * result,
+             int mode = 0,
+             int threads = 1,
+             int theadSize = -1, // in megabytes
+             char * errorStr = 0);
 
 int LIBGOSTCLSHARED_EXPORT
     Decrypt (const char * const data,
-              int mode = 0,
-              int threads = 1,
-              int theadSize = -1,
-              char * errorStr = 0);
+             unsigned long datasize,
+             const char * result,
+             int mode = 0,
+             int threads = 1,
+             int theadSize = -1,
+             char * errorStr = 0);
 
-int LIBGOSTCLSHARED_EXPORT
-    GetResult (const char * data);
 
 }
 
