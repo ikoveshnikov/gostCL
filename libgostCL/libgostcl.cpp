@@ -40,11 +40,11 @@ std::string LibGostCL::GetErrorString()
     return GetErrorMessage(errorCode);
 }
 
-bool LibGostCL::Encrypt (const std::list <unsigned char> * const data,
-                         const std::list <unsigned char> * result,
-                         ModeOfOperation mode = ECB,
-                         int threads = 1,
-                         int threadSize = -1)
+bool LibGostCL::Encrypt (const std::vector <unsigned char> * const data,
+                         const std::vector <unsigned char> * result,
+                         ModeOfOperation mode,
+                         int threads,
+                         int threadSize)
 {
     Crypter gCrypter;
 
@@ -59,11 +59,11 @@ bool LibGostCL::Encrypt (const std::list <unsigned char> * const data,
     return success;
 }
 
-bool LibGostCL::Decrypt (const std::list <unsigned char> * const data,
-                         const std::list <unsigned char> * result,
-                         ModeOfOperation mode = ECB,
-                         int threads = 1,
-                         int threadSize = -1)
+bool LibGostCL::Decrypt (const std::vector <unsigned char> * const data,
+                         const std::vector <unsigned char> * result,
+                         ModeOfOperation mode,
+                         int threads,
+                         int threadSize)
 {
     Crypter gCrypter;
 

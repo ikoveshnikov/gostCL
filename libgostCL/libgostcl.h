@@ -3,7 +3,6 @@
 
 #include "libgostcl_global.h"
 #include <vector>
-#include <list>
 #include <string>
 
 
@@ -27,14 +26,14 @@ public:
 
     bool SetEncryptionKey (const std::string & key);
 
-    bool Encrypt (const std::list <unsigned char> * const data,
-                  const std::list <unsigned char> * result,
+    bool Encrypt (const std::vector <unsigned char> * const data,
+                  const std::vector <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int threadSize = -1); // in megabytes
 
-    bool Decrypt (const std::list <unsigned char> * const data,
-                  const std::list <unsigned char> * result,
+    bool Decrypt (const std::vector <unsigned char> * const data,
+                  const std::vector <unsigned char> * result,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int threadSize = -1);

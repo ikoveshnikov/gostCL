@@ -15,11 +15,11 @@ public:
 
     void SetThreadsSize (int megabytes);
 
-    bool Encrypt (const std::list <unsigned char> * const data,
-                  const std::list <unsigned char> * result);
+    bool Encrypt (const std::vector <unsigned char> * const data,
+                  const std::vector <unsigned char> * result);
 
-    bool Decrypt (const std::list <unsigned char> * const data,
-                  const std::list <unsigned char> * result);
+    bool Decrypt (const std::vector <unsigned char> * const data,
+                  const std::vector <unsigned char> * result);
 
     int GetErrorCode ();
 

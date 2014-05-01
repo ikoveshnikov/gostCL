@@ -14,7 +14,7 @@ Crypter::~Crypter()
 
 }
 
-void Crypter::SetModeOfOperation (LibGostCL::ModeOfOperation mode = LibGostCL::ECB)
+void Crypter::SetModeOfOperation (LibGostCL::ModeOfOperation mode)
 {
     operationMode = mode;
 }
@@ -34,8 +34,8 @@ int Crypter::GetErrorCode ()
     return errorCode;
 }
 
-bool Crypter::Encrypt (const std::list <unsigned char> * const data,
-                       const std::list <unsigned char> * result)
+bool Crypter::Encrypt (const std::vector <unsigned char> * const data,
+                       const std::vector <unsigned char> * result)
 {
     std::string key = SettingsHolder::Instance().GetKey();
 
@@ -50,8 +50,8 @@ bool Crypter::Encrypt (const std::list <unsigned char> * const data,
     return true;
 }
 
-bool Crypter::Decrypt (const std::list <unsigned char> * const data,
-                       const std::list <unsigned char> * result)
+bool Crypter::Decrypt (const std::vector <unsigned char> * const data,
+                       const std::vector <unsigned char> * result)
 {
     std::string key = SettingsHolder::Instance().GetKey();
 
