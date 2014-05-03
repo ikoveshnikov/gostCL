@@ -13,6 +13,8 @@ TEMPLATE = lib
 
 DEFINES += LIBGOSTCL_LIBRARY
 
+DESTDIR = ../output
+
 SOURCES += libgostcl.cpp \
     errormessages.cpp \
     crypter.cpp \

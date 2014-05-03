@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       -= core gui
 
 CONFIG += c++11
 
@@ -14,5 +14,10 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+DESTDIR = ../output
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    gostclcrypter.cpp
+
+HEADERS += \
+    gostclcrypter.h
