@@ -34,8 +34,10 @@ int Crypter::GetErrorCode ()
     return errorCode;
 }
 
-bool Crypter::Encrypt (const std::vector <unsigned char> * const data,
-                       const std::vector <unsigned char> * result)
+
+// strings operations
+bool Crypter::Encrypt (const std::string input,
+                       std::string output)
 {
     std::string key = SettingsHolder::Instance().GetKey();
 
@@ -50,8 +52,8 @@ bool Crypter::Encrypt (const std::vector <unsigned char> * const data,
     return true;
 }
 
-bool Crypter::Decrypt (const std::vector <unsigned char> * const data,
-                       const std::vector <unsigned char> * result)
+bool Crypter::Decrypt (const std::string input,
+                       std::string output)
 {
     std::string key = SettingsHolder::Instance().GetKey();
 
@@ -63,8 +65,38 @@ bool Crypter::Decrypt (const std::vector <unsigned char> * const data,
         errorCode = 2;
         return false;
     }
-
     return true;
 }
 
+// files operations
+bool Crypter::EncryptFile (const std::string  inputFile,
+                           const std::string outputFile)
+{
+    std::string key = SettingsHolder::Instance().GetKey();
 
+    const std::vector <std::vector <int> > sboxes =
+            SettingsHolder::Instance().GetSBoxes();
+
+    if (0 == key.size())
+    {
+        errorCode = 2;
+        return false;
+    }
+    return true;
+}
+
+bool Crypter::DecryptFile (const std::string  inputFile,
+                           const std::string outputFile)
+{
+    std::string key = SettingsHolder::Instance().GetKey();
+
+    const std::vector <std::vector <int> > sboxes =
+            SettingsHolder::Instance().GetSBoxes();
+
+    if (0 == key.size())
+    {
+        errorCode = 2;
+        return false;
+    }
+    return true;
+}
