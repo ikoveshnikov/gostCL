@@ -40,27 +40,41 @@ std::string LibGostCL::GetErrorString()
     return GetErrorMessage(errorCode);
 }
 
-bool LibGostCL::Encrypt (const std::vector <unsigned char> * const data,
-                         const std::vector <unsigned char> * result,
-                         ModeOfOperation mode,
-                         int threads,
-                         int threadSize)
+
+// strings operations
+bool LibGostCL::Encrypt (const std::string input,
+                         std::string output,
+                         ModeOfOperation mode)
 {
     Crypter gCrypter;
 
     gCrypter.SetModeOfOperation(mode);
-    gCrypter.SetThreadsCount(threads);
-    gCrypter.SetThreadsSize(threadSize);
 
-    bool success = gCrypter.Encrypt(data, result);
+    bool success = gCrypter.Encrypt(input, output);
 
     errorCode = gCrypter.GetErrorCode();
 
     return success;
 }
 
-bool LibGostCL::Decrypt (const std::vector <unsigned char> * const data,
-                         const std::vector <unsigned char> * result,
+bool LibGostCL::Decrypt (const std::string input,
+                         std::string output,
+                         ModeOfOperation mode)
+{
+    Crypter gCrypter;
+
+    gCrypter.SetModeOfOperation(mode);
+
+    bool success = gCrypter.Decrypt(input, output);
+
+    errorCode = gCrypter.GetErrorCode();
+
+    return success;
+}
+
+// files operations
+bool LibGostCL::Encrypt (const std::string  inputFile,
+                         const std::string outputFile,
                          ModeOfOperation mode,
                          int threads,
                          int threadSize)
@@ -71,9 +85,28 @@ bool LibGostCL::Decrypt (const std::vector <unsigned char> * const data,
     gCrypter.SetThreadsCount(threads);
     gCrypter.SetThreadsSize(threadSize);
 
-    bool success = gCrypter.Decrypt(data, result);
+    bool success = gCrypter.EncryptFile(inputFile, outputFile);
 
     errorCode = gCrypter.GetErrorCode();
 
     return success;
+}
+
+bool LibGostCL::Decrypt (const std::string  inputFile,
+                         const std::string outputFile,
+                         ModeOfOperation mode,
+                         int threads,
+                         int threadSize)
+{
+    Crypter gCrypter;
+
+    gCrypter.SetModeOfOperation(mode);
+    gCrypter.SetThreadsCount(threads);
+    gCrypter.SetThreadsSize(threadSize);
+
+    bool success = gCrypter.DecryptFile(inputFile, outputFile);
+
+    errorCode = gCrypter.GetErrorCode();
+
+    return success;;
 }

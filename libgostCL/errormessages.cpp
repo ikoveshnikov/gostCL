@@ -23,6 +23,10 @@ std::string GetErrorMessage(int errorCode)
         return std::string ("Mode of operation is unknown");
         break;
 
+    case 5:
+        return std::string ("Unexpected null pointer got!");
+        break;
+
     default:
         return std::string ("Unknown error");
         break;

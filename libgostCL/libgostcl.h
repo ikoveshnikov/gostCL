@@ -26,14 +26,24 @@ public:
 
     bool SetEncryptionKey (const std::string & key);
 
-    bool Encrypt (const std::vector <unsigned char> * const data,
-                  const std::vector <unsigned char> * result,
+    // strings operations
+    bool Encrypt (const std::string input,
+                  std::string output,
+                  ModeOfOperation mode = ECB);
+
+    bool Decrypt (const std::string input,
+                  std::string output,
+                  ModeOfOperation mode = ECB);
+
+    // files operations
+    bool Encrypt (const std::string  inputFile,
+                  const std::string outputFile,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int threadSize = -1); // in megabytes
 
-    bool Decrypt (const std::vector <unsigned char> * const data,
-                  const std::vector <unsigned char> * result,
+    bool Decrypt (const std::string  inputFile,
+                  const std::string outputFile,
                   ModeOfOperation mode = ECB,
                   int threads = 1,
                   int threadSize = -1);

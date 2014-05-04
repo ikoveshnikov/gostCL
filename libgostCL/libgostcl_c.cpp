@@ -4,6 +4,7 @@
 #include "crypter.h"
 #include "cstring"
 
+//------------------------------------------------------------------------------
 int SetSBoxes(const char * const standartID)
 {
     if (standartID == std::string("id_GostR3411_94_TestParamSet"))
@@ -45,7 +46,7 @@ int SetSBoxes(const char * const standartID)
     return 1;
 }
 
-
+//------------------------------------------------------------------------------
 void SetEncryptionKey(const char * const key)
 {
     std::string keyStr (key);
@@ -53,73 +54,26 @@ void SetEncryptionKey(const char * const key)
     SettingsHolder::Instance().SetKey(keyStr);
 }
 
-
-int Encrypt (const char * const data,
-             unsigned long datasize,
-             char * result,
-             int mode,
-             int threads,
-             int threadSize,
-             char * errorStr)
-{
-    LibGostCL::ModeOfOperation operationMode;
-    switch (mode)
-    {
-    case 0:
-        operationMode = LibGostCL::ECB;
-        break;
-    case 1:
-        operationMode = LibGostCL::CBC;
-        break;
-    case 2:
-        operationMode = LibGostCL::OFB;
-        break;
-    case 3:
-        operationMode = LibGostCL::CFB;
-        break;
-    default:
-        strcpy(errorStr, GetErrorMessage(4).c_str());
-        return 1;
-        break;
-    }
-
-    std::vector <unsigned char> input;
-    std::vector <unsigned char> output;
-
-    input.resize(datasize);
-    output.resize(datasize);
-
-    for (unsigned long i=0; i<datasize; i++)
-    {
-        input.push_back( data[i] );
-    }
-
-    Crypter gCrypter;
-
-    gCrypter.SetModeOfOperation(operationMode);
-    gCrypter.SetThreadsCount(threads);
-    gCrypter.SetThreadsSize(threadSize);
-
-    bool success = gCrypter.Encrypt(&input, &output);
-
-    for (size_t i=0; i<output.size(); i++)
-    {
-        result[i] = output.at(i);
-    }
-
-    strcpy(errorStr, GetErrorMessage(gCrypter.GetErrorCode()).c_str());
-
-    return ((success == true) ? 0 : 1) ;
-}
-
-int Decrypt (const char * const data,
-             unsigned long datasize,
+//------------------------------------------------------------------------------
+// strings operations
+//------------------------------------------------------------------------------
+int LIBGOSTCLSHARED_EXPORT
+    Encrypt (const char * data,
              char *result,
              int mode,
-             int threads,
-             int threadSize,
              char * errorStr)
 {
+    if ((0 == data) ||
+        (0 == result) )
+    {
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(5);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+    }
+
     LibGostCL::ModeOfOperation operationMode;
     switch (mode)
     {
@@ -136,20 +90,141 @@ int Decrypt (const char * const data,
         operationMode = LibGostCL::CFB;
         break;
     default:
-        strcpy(errorStr, GetErrorMessage(4).c_str());
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(4);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
         return 1;
         break;
     }
 
-    std::vector <unsigned char> input;
-    std::vector <unsigned char> output;
+    Crypter gCrypter;
 
-    input.resize(datasize);
-    output.resize(datasize);
+    gCrypter.SetModeOfOperation(operationMode);
 
-    for (unsigned long i=0; i<datasize; i++)
+    std::string output;
+    bool success = gCrypter.Encrypt(std::string(data), output);
+
+    std::copy (output.begin(), output.end(), result);
+
+    if (0 != errorStr)
     {
-        input.push_back( data[i] );
+        std::string error = GetErrorMessage(gCrypter.GetErrorCode());
+        std::copy (error.begin(), error.end(), errorStr);
+    }
+
+    return ((success == true) ? 0 : 1) ;
+
+}
+
+//------------------------------------------------------------------------------
+int LIBGOSTCLSHARED_EXPORT
+    Decrypt (const char * data,
+             char * result,
+             int mode,
+             char * errorStr)
+{
+    if ((0 == data) ||
+        (0 == result) )
+    {
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(5);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+    }
+
+    LibGostCL::ModeOfOperation operationMode;
+    switch (mode)
+    {
+    case 0:
+        operationMode = LibGostCL::ECB;
+        break;
+    case 1:
+        operationMode = LibGostCL::CBC;
+        break;
+    case 2:
+        operationMode = LibGostCL::OFB;
+        break;
+    case 3:
+        operationMode = LibGostCL::CFB;
+        break;
+    default:
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(4);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+        break;
+    }
+
+    Crypter gCrypter;
+
+    gCrypter.SetModeOfOperation(operationMode);
+
+    std::string output;
+    bool success = gCrypter.Decrypt(std::string(data), output);
+
+    std::copy (output.begin(), output.end(), result);
+
+    if (0 != errorStr)
+    {
+        std::string error = GetErrorMessage(gCrypter.GetErrorCode());
+        std::copy (error.begin(), error.end(), errorStr);
+    }
+
+    return ((success == true) ? 0 : 1) ;
+
+}
+
+//------------------------------------------------------------------------------
+// files operations
+//------------------------------------------------------------------------------
+int LIBGOSTCLSHARED_EXPORT
+    EncryptFile (const char * inputFile,
+                 const char * outputFile,
+                 int mode,
+                 int threads,
+                 int threadSize,
+                 char * errorStr)
+{
+    if ((0 == inputFile) ||
+        (0 == outputFile) )
+    {
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(5);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+    }
+
+    LibGostCL::ModeOfOperation operationMode;
+    switch (mode)
+    {
+    case 0:
+        operationMode = LibGostCL::ECB;
+        break;
+    case 1:
+        operationMode = LibGostCL::CBC;
+        break;
+    case 2:
+        operationMode = LibGostCL::OFB;
+        break;
+    case 3:
+        operationMode = LibGostCL::CFB;
+        break;
+    default:
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(4);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+        break;
     }
 
     Crypter gCrypter;
@@ -158,14 +233,77 @@ int Decrypt (const char * const data,
     gCrypter.SetThreadsCount(threads);
     gCrypter.SetThreadsSize(threadSize);
 
-    bool success = gCrypter.Decrypt(&input, &output);
+    bool success = gCrypter.Encrypt(std::string(inputFile), std::string(outputFile));
 
-    for (size_t i=0; i<output.size(); i++)
+    if (0 != errorStr)
     {
-        result[i] = output.at(i);
+        std::string error = GetErrorMessage(gCrypter.GetErrorCode());
+        std::copy (error.begin(), error.end(), errorStr);
     }
-
-    strcpy(errorStr, GetErrorMessage(gCrypter.GetErrorCode()).c_str());
 
     return ((success == true) ? 0 : 1) ;
 }
+
+
+//------------------------------------------------------------------------------
+int LIBGOSTCLSHARED_EXPORT
+    DecryptFile (const char * inputFile,
+                 const char * outputFile,
+                 int mode,
+                 int threads,
+                 int threadSize,
+                 char * errorStr)
+{
+    if ((0 == inputFile) ||
+        (0 == outputFile) )
+    {
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(5);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+    }
+
+    LibGostCL::ModeOfOperation operationMode;
+    switch (mode)
+    {
+    case 0:
+        operationMode = LibGostCL::ECB;
+        break;
+    case 1:
+        operationMode = LibGostCL::CBC;
+        break;
+    case 2:
+        operationMode = LibGostCL::OFB;
+        break;
+    case 3:
+        operationMode = LibGostCL::CFB;
+        break;
+    default:
+        if (errorStr != 0)
+        {
+            std::string error = GetErrorMessage(4);
+            std::copy (error.begin(), error.end(), errorStr);
+        }
+        return 1;
+        break;
+    }
+
+    Crypter gCrypter;
+
+    gCrypter.SetModeOfOperation(operationMode);
+    gCrypter.SetThreadsCount(threads);
+    gCrypter.SetThreadsSize(threadSize);
+
+    bool success = gCrypter.Decrypt(std::string(inputFile), std::string(outputFile));
+
+    if (0 != errorStr)
+    {
+        std::string error = GetErrorMessage(gCrypter.GetErrorCode());
+        std::copy (error.begin(), error.end(), errorStr);
+    }
+
+    return ((success == true) ? 0 : 1) ;
+}
+
