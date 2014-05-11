@@ -10,13 +10,19 @@ void PrintHelp (const char * programName)
     "\n\tgostCrypter - encryption tool implemented GOST 28147-89 using OpenCL boost"
     "\n"
     "\nSYNOPSIS"
-    "\n\t" << programName << " [ STRING | SOURCE DEST ]"
+    "\n\t" << programName << "[ -e | -d ] [ STRING | SOURCE DEST ]"
     "\n\t[-t THREADS -s SIZE] [-m MODE] [OPTION]..."
     "\n"
     "\nDESCRIPTION"
     "\n\tEncrypt file or string using GOST 28147-89."
     "\n\tCan encrypt/decrypt STRING ether SOURCE file. S-Boxes could"
     "\n\tbe specifized by user."
+    "\n"
+    "\n\t-e"
+    "\n\t\tEncrypt file or string"
+    "\n"
+    "\n\t-d"
+    "\n\t\tDecrypt file or string"
     "\n"
     "\n\t--help"
     "\n\t\tdisplay this help and exit"
@@ -43,15 +49,16 @@ void PrintHelp (const char * programName)
 
 int main(int argc, char *argv[])
 {
-    if ((argc > 10) || (argc <= 1))
+    if ((argc > 11) || (argc <= 2))
     {
         PrintHelp(argv[0]);
-        return 0;
+        return 1;
     }
 
     std::string input;
     std::string output;
 
+    int encrypt = -1;
     std::string mode;
     bool customSBoxes = false;
 
@@ -63,7 +70,7 @@ int main(int argc, char *argv[])
         if (std::string(argv[i]) == "--help")
         {
             PrintHelp(argv[0]);
-            return 0;
+            return 1;
         }
     }
 
@@ -84,11 +91,39 @@ int main(int argc, char *argv[])
             if (customSBoxes)
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             } // for the repeated action used
 
             customSBoxes = true;
             usedArgs.at(i) = true;
+        }
+    }
+
+    //catch euther encrypt or decrypt
+    for (int i=1; i<argc; i++)
+    {
+        if (usedArgs.at(i))
+        {
+            continue;
+        }
+
+        if ((std::string(argv[i]) == "-e") ||
+            (std::string(argv[i]) == "-d") )
+        {
+            if (-1 != encrypt)
+            {
+                PrintHelp(argv[0]);
+                return 1;
+            } // for the repeated action used
+
+            if (std::string(argv[i]) == "-e")
+            {
+                encrypt = 1;
+            }
+            else
+            {
+                encrypt = 0;
+            }
         }
     }
 
@@ -106,7 +141,7 @@ int main(int argc, char *argv[])
             if (0 !=mode.size())
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             } // for the repeated action used
 
             if ((i+1 < argc)                &&
@@ -120,7 +155,7 @@ int main(int argc, char *argv[])
             else
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             }
         }
     }
@@ -140,7 +175,7 @@ int main(int argc, char *argv[])
             if (-1 !=threads)
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             } // for the repeated action used
 
             if ((i+1 < argc)                &&
@@ -152,7 +187,7 @@ int main(int argc, char *argv[])
                 if (0L == threads)
                 {
                     PrintHelp(argv[0]);
-                    return 0;
+                    return 1;
                 }
                 usedArgs.at(i) = true;
                 usedArgs.at(i+1) = true;
@@ -160,7 +195,7 @@ int main(int argc, char *argv[])
             else
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             }
         }
     }
@@ -179,7 +214,7 @@ int main(int argc, char *argv[])
             if (-1 !=threadSize)
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             } // for the repeated action used
 
             if ((i+1 < argc)                &&
@@ -191,7 +226,7 @@ int main(int argc, char *argv[])
                 if (0L == threadSize)
                 {
                     PrintHelp(argv[0]);
-                    return 0;
+                    return 1;
                 }
                 usedArgs.at(i) = true;
                 usedArgs.at(i+1) = true;
@@ -199,7 +234,7 @@ int main(int argc, char *argv[])
             else
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             }
         }
     }
@@ -223,7 +258,7 @@ int main(int argc, char *argv[])
             else
             {
                 PrintHelp(argv[0]);
-                return 0;
+                return 1;
             }
         }
     }
@@ -233,7 +268,7 @@ int main(int argc, char *argv[])
     if (0 == inputIndex)
     {
         PrintHelp(argv[0]);
-        return 0;
+        return 1;
     }
     else
     {
@@ -244,6 +279,74 @@ int main(int argc, char *argv[])
             fileEncoding = true;
         }
     }
+
+    //encrypt or decrypt must be set
+    if (-1 == encrypt)
+    {
+        PrintHelp(argv[0]);
+        return 1;
+    }
+    //thread size must be set if threads count is set. and vice versa
+    if (((threads  > 0) && (threadSize <= 0)) ||
+        ((threads <= 0) && (threadSize  > 0)) )
+    {
+        PrintHelp(argv[0]);
+        return 1;
+    }
+
+    GostCLCrypter gcrypter;
+
+    if (!gcrypter.Init())
+    {
+        std::cout << "Couldn't load GostCL library!" << std::endl;
+        return 1;
+    }
+
+    if (1 == encrypt)
+    {
+        gcrypter.GrabEncryptionKey(GostCLCrypter::Encrypt);
+
+        if (customSBoxes)
+        {
+            gcrypter.SetSBoxes();
+        }
+
+        if (false == fileEncoding)
+        {
+            gcrypter.EncyptString(input, output, mode);
+
+            std::cout << "\n" << output <<std::endl;
+        }
+        else
+        {
+            gcrypter.EncyptFile(input, output, mode, threads, threadSize);
+
+            std::cout << "\nDone.\n" << output <<std::endl;
+        }
+
+
+    }
+    else
+    {
+        if (customSBoxes)
+        {
+            gcrypter.SetSBoxes();
+        }
+
+        if (false == fileEncoding)
+        {
+            gcrypter.EncyptString(input, output, mode);
+
+            std::cout << "\n" << output <<std::endl;
+        }
+        else
+        {
+            gcrypter.EncyptFile(input, output, mode, threads, threadSize);
+
+            std::cout << "\nDone.\n" << output <<std::endl;
+        }
+    }
+
 
     return 0;
 }
