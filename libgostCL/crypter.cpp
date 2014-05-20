@@ -39,64 +39,107 @@ int Crypter::GetErrorCode ()
 bool Crypter::Encrypt (const std::string input,
                        std::string output)
 {
-    std::string key = SettingsHolder::Instance().GetKey();
+    if (!SetCryptKey())
+    {
+        return false;
+    }
 
     const std::vector <std::vector <int> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
-    if (0 == key.size())
-    {
-        errorCode = 2;
-        return false;
-    }
-    return true;
+    errorCode = -1;
+    return false;
 }
 
 bool Crypter::Decrypt (const std::string input,
                        std::string output)
 {
-    std::string key = SettingsHolder::Instance().GetKey();
+    if (!SetCryptKey())
+    {
+        return false;
+    }
 
     const std::vector <std::vector <int> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
-    if (0 == key.size())
-    {
-        errorCode = 2;
-        return false;
-    }
-    return true;
+    errorCode = -1;
+    return false;
 }
 
 // files operations
 bool Crypter::EncryptFile (const std::string  inputFile,
                            const std::string outputFile)
 {
-    std::string key = SettingsHolder::Instance().GetKey();
+    if (!SetCryptKey())
+    {
+        return false;
+    }
 
     const std::vector <std::vector <int> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
-    if (0 == key.size())
-    {
-        errorCode = 2;
-        return false;
-    }
-    return true;
+    errorCode = -1;
+    return false;
 }
 
 bool Crypter::DecryptFile (const std::string  inputFile,
                            const std::string outputFile)
 {
-    std::string key = SettingsHolder::Instance().GetKey();
+    if (!SetCryptKey())
+    {
+        return false;
+    }
 
     const std::vector <std::vector <int> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
-    if (0 == key.size())
+    if (operationMode != LibGostCL::CFB)
+    {
+        errorCode = -1;
+        return false;
+    }
+
+    std::ifstream in(inputFile, std::ios::binary);
+    std::vector<C_U32> fileContents;
+    fileContents.reserve(fileSize);
+    fileContents.assign(std::istreambuf_iterator<char>(testFile),
+                        std::istreambuf_iterator<char>());
+
+    return true;
+}
+
+bool Crypter::SetCryptKey()
+{
+    std::string key = SettingsHolder::Instance().GetKey();
+
+    if (key.size() == 0)
     {
         errorCode = 2;
         return false;
     }
+
+    encryptionKey.clear();
+
+    if (encryptionKey.size() != 8)
+    {
+        encryptionKey.resize(8);
+    }
+
+    for (int i=0; i<8; i++)
+    {
+        encryptionKey.push_back(0);
+    }
+
+    size_t key_size = key.size();
+
+    for (size_t i=0, j=0; i<8; i++,j+=4)
+    {
+        encryptionKey[i] = key.at(  j   % key_size) |
+                           key.at((j+1) % key_size) |
+                           key.at((j+2) % key_size) |
+                           key.at((j+3) % key_size);
+    }
+
     return true;
+
 }

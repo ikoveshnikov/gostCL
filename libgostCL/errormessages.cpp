@@ -3,6 +3,10 @@
 std::string GetErrorMessage(int errorCode)
 {
     switch (errorCode) {
+    case -1:
+        return std::string ("Not implemented");
+        break;
+
     case 0:
         return std::string ("Successfully done. No error found");
         break;
@@ -25,6 +29,10 @@ std::string GetErrorMessage(int errorCode)
 
     case 5:
         return std::string ("Unexpected null pointer got!");
+        break;
+
+    case 6:
+        return std::string ("");
         break;
 
     default:

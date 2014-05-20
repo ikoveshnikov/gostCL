@@ -3,6 +3,9 @@
 
 #include "libgostcl.h"
 
+using C_U8 = unsigned char;
+using C_U32 = unsigned long;
+
 class Crypter
 {
 public:
@@ -31,12 +34,16 @@ public:
 
     int GetErrorCode ();
 
+    bool SetCryptKey ();
+
 private:
     LibGostCL::ModeOfOperation operationMode;
 
     int threadsCount;
     int threadsSize;
     int errorCode;
+
+    std::vector <C_U32> encryptionKey;
 };
 
 #endif // CRYPTER_H
