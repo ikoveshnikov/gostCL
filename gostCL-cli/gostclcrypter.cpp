@@ -10,12 +10,24 @@ GostCLCrypter::GostCLCrypter()
 
 GostCLCrypter::~GostCLCrypter()
 {
-
+    if (clCrypter != 0)
+    {
+        delete clCrypter;
+    }
 }
 
 bool GostCLCrypter::Init ()
 {
-    return true;
+    clCrypter = new (std::nothrow) LibGostCL;
+
+    if (clCrypter != 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool GostCLCrypter::GrabEncryptionKey (const Operation encryptionMode)
@@ -76,9 +88,9 @@ bool GostCLCrypter::EncyptFile (const std::string fileNameIn,
     return true;
 }
 
-bool GostCLCrypter::DecyptFile (const std::string fileNameIn,
+bool GostCLCrypter::DecryptFile (const std::string fileNameIn,
                                 const std::string fileNameOut, const std::string modeOfOperation,
-                                int treads,
+                                int threads,
                                 int threadSize)
 {
     if (0 == clCrypter)
@@ -86,6 +98,13 @@ bool GostCLCrypter::DecyptFile (const std::string fileNameIn,
         return false;
     }
 
+    GrabEncryptionKey(Decrypt);
+
+    clCrypter->SetEncryptionKey(encryptionKey);
+
+    clCrypter->Decrypt(fileNameIn, fileNameOut,
+                       clCrypter->ParseModeOfOperation(modeOfOperation),
+                       threads, threadSize);
 
     return true;
 
@@ -102,7 +121,7 @@ bool GostCLCrypter::EncyptString (const std::string stringIn,
     return true;
 }
 
-bool GostCLCrypter::DecyptString (const std::string stringIn,
+bool GostCLCrypter::DecryptString (const std::string stringIn,
                                   std::string stringOut, const std::string modeOfOperation)
 {
     if (0 == clCrypter)

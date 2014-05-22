@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    //catch euther encrypt or decrypt
+    //catch either encrypt or decrypt
     for (int i=1; i<argc; i++)
     {
         if (usedArgs.at(i))
@@ -124,6 +124,7 @@ int main(int argc, char *argv[])
             {
                 encrypt = 0;
             }
+            usedArgs.at(i) = true;
         }
     }
 
@@ -335,13 +336,13 @@ int main(int argc, char *argv[])
 
         if (false == fileEncoding)
         {
-            gcrypter.EncyptString(input, output, mode);
+            gcrypter.DecryptString(input, output, mode);
 
             std::cout << "\n" << output <<std::endl;
         }
         else
         {
-            gcrypter.EncyptFile(input, output, mode, threads, threadSize);
+            gcrypter.DecryptFile(input, output, mode, threads, threadSize);
 
             std::cout << "\nDone.\n" << output <<std::endl;
         }

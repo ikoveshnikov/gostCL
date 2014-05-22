@@ -26,6 +26,8 @@ public:
 
     bool SetEncryptionKey (const std::string & key);
 
+    static ModeOfOperation ParseModeOfOperation (const std::string mode);
+
     // strings operations
     bool Encrypt (const std::string input,
                   std::string output,

@@ -29,17 +29,17 @@ public:
                      int treads = 1,
                      int threadSize = -1);
 
-    bool DecyptFile (const std::string fileNameIn,
+    bool DecryptFile (const std::string fileNameIn,
                      const std::string fileNameOut,
                      const std::string modeOfOperation,
-                     int treads = 1,
+                     int threads = 1,
                      int threadSize = -1);
 
     bool EncyptString (const std::string stringIn,
                        std::string stringOut,
                        const std::string modeOfOperation);
 
-    bool DecyptString (const std::string stringIn,
+    bool DecryptString (const std::string stringIn,
                        std::string stringOut,
                        const std::string modeOfOperation);
 

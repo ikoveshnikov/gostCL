@@ -35,6 +35,26 @@ bool LibGostCL::SetEncryptionKey(const std::string &key)
     return SettingsHolder::Instance().SetKey(key);
 }
 
+LibGostCL::ModeOfOperation LibGostCL::ParseModeOfOperation (const std::string mode)
+{
+    if ((mode == "ECB") || (mode == "ecb"))
+    {
+        return ECB;
+    }
+    else if ((mode == "CBC") || (mode == "cbc"))
+    {
+        return CBC;
+    }
+    else if ((mode == "OFB") || (mode == "ofb"))
+    {
+        return OFB;
+    }
+    else if ((mode == "CFB") || (mode == "cfb"))
+    {
+        return CFB;
+    }
+}
+
 std::string LibGostCL::GetErrorString()
 {
     return GetErrorMessage(errorCode);
