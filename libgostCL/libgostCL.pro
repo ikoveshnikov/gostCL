@@ -32,3 +32,6 @@ unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+OTHER_FILES += \
+    gostdecrypt.cl

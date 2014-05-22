@@ -2,9 +2,10 @@
 #define CRYPTER_H
 
 #include "libgostcl.h"
+#include <cinttypes>
 
 using C_U8 = unsigned char;
-using C_U32 = unsigned long;
+using C_U32 = u_int32_t;
 
 class Crypter
 {
