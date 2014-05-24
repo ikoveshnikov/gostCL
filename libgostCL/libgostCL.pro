@@ -35,3 +35,7 @@ unix {
 
 OTHER_FILES += \
     gostdecrypt.cl
+
+unix|win32: LIBS += -lOpenCL
+
+

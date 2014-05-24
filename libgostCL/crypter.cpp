@@ -121,17 +121,22 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         i++;
     }
 
+    if (inFile.size() % 2 == 1)
+    {
+        inFile.push_back(0);
+        outFile.push_back(0);
+    }
+
 
     try {
 
-        const int N_ELEMENTS = 1024;
-        // Query for platforms
+           // Query for platforms
         std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
 
         // Get a list of devices on this platform
         std::vector<cl::Device> devices;
-        platforms[0].getDevices(CL_DEVICE_TYPE_ALL, &devices);
+        platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
 
         // Create a context for the devices
         cl::Context context(devices);
@@ -158,6 +163,7 @@ bool Crypter::DecryptFile (const std::string  inputFile,
 
         // Read the program source
         std::ifstream sourceFile("gostdecrypt.cl");
+
         std::string sourceCode( std::istreambuf_iterator<char>(sourceFile),
             (std::istreambuf_iterator<char>()));
         cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(),
@@ -170,7 +176,7 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         program.build(devices);
 
         // Make kernel
-        cl::Kernel vecadd_kernel(program, "vecadd");
+        cl::Kernel vecadd_kernel(program, "decrypt");
 
         // Set the kernel arguments
         vecadd_kernel.setArg(0, inBuf);
@@ -178,7 +184,7 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         vecadd_kernel.setArg(2, keyBuf);
 
         // Execute the kernel
-        cl::NDRange global(N_ELEMENTS);
+        cl::NDRange global(inFile.size()/2);
         cl::NDRange local(128);
         queue.enqueueNDRangeKernel(vecadd_kernel, cl::NullRange, global, local);
 
@@ -188,11 +194,9 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         // Verify the result
         std::ofstream out(outputFile, std::ios::binary);
 
-        i = 0;
-        while (!in.eof())
+        for (i=0; i<inFile.size(); i++)
         {
             out.write(reinterpret_cast<char*>(&inFile[i]), sizeof(uint32_t));
-            i++;
         }
 
       }
