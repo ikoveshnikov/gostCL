@@ -55,8 +55,8 @@ private:
                              std::vector <std::vector <C_U8> > sboxes);
 
     bool RunOCL (gost_ctx &gostContext,
-                 const std::vector<C_U32> inFile,
-                 std::vector<C_U32> outFile,
+                 const std::vector<C_U32> &inFile,
+                 std::vector<C_U32> &outFile,
                  bool isDecrypt);
 };
 
