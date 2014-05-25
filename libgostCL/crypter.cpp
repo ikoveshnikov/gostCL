@@ -6,6 +6,9 @@
 #include "iostream"
 #include <CL/cl.hpp>
 
+
+
+
 Crypter::Crypter()
     : operationMode (LibGostCL::ECB)
     , threadsCount (1)
@@ -49,7 +52,7 @@ bool Crypter::Encrypt (const std::string input,
         return false;
     }
 
-    const std::vector <std::vector <int> > sboxes =
+    const std::vector <std::vector <C_U8> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
     errorCode = -1;
@@ -64,7 +67,7 @@ bool Crypter::Decrypt (const std::string input,
         return false;
     }
 
-    const std::vector <std::vector <int> > sboxes =
+    const std::vector <std::vector <C_U8> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
     errorCode = -1;
@@ -80,7 +83,7 @@ bool Crypter::EncryptFile (const std::string  inputFile,
         return false;
     }
 
-    const std::vector <std::vector <int> > sboxes =
+    const std::vector <std::vector <C_U8> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
     errorCode = -1;
@@ -101,7 +104,7 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         return false;
     }
 
-    const std::vector <std::vector <int> > sboxes =
+    const std::vector <std::vector <C_U8> > sboxes =
             SettingsHolder::Instance().GetSBoxes();
 
 

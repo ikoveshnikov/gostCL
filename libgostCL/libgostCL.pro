@@ -26,7 +26,8 @@ HEADERS += libgostcl.h\
     errormessages.h \
     crypter.h \
     settingsholder.h \
-    libgostcl_c.h
+    libgostcl_c.h \
+    crypt_types.h
 
 unix {
     target.path = /usr/lib

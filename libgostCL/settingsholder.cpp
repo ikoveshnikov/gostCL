@@ -22,7 +22,7 @@ int SettingsHolder::GetErrorCode()
     return lastError;
 }
 
-std::vector<std::vector<int> > SettingsHolder::GetSBoxes() const
+std::vector<std::vector<C_U8> > SettingsHolder::GetSBoxes() const
 {
     if (customSBoxesSet)
     {
@@ -34,11 +34,11 @@ std::vector<std::vector<int> > SettingsHolder::GetSBoxes() const
     }
 }
 
-std::vector <std::vector <int> >
+std::vector <std::vector <C_U8> >
     SettingsHolder::GetStandartSBoxes (SBoxesID idSet)
 {
-    std::vector <std::vector <int> > boxes;
-    std::vector <int> line;
+    std::vector <std::vector <C_U8> > boxes;
+    std::vector <C_U8> line;
     line.reserve(16);
     boxes.reserve(8);
 
@@ -175,7 +175,7 @@ bool SettingsHolder::SetStandartSBoxes(SBoxesID idSet)
     return true;
 }
 
-bool SettingsHolder::SetSBoxes(const std::vector<std::vector<int> > &boxes)
+bool SettingsHolder::SetSBoxes(const std::vector<std::vector<C_U8> > &boxes)
 {
     lastError = 1;
     if (boxes.size() != 8)
@@ -183,7 +183,7 @@ bool SettingsHolder::SetSBoxes(const std::vector<std::vector<int> > &boxes)
         return false;
     }
 
-    for (unsigned int i=0; i<boxes.size(); i++)
+    for (size_t i=0; i<boxes.size(); i++)
     {
         if (boxes.at(i).size() != 16)
         {
@@ -191,7 +191,7 @@ bool SettingsHolder::SetSBoxes(const std::vector<std::vector<int> > &boxes)
         }
     }
 
-    for (unsigned int i=0; i<boxes.size(); i++)
+    for (size_t i=0; i<boxes.size(); i++)
     {
         bool errorLine = false;
         std::vector <bool> elements = { false, false, false, false,
@@ -199,7 +199,7 @@ bool SettingsHolder::SetSBoxes(const std::vector<std::vector<int> > &boxes)
                                         false, false, false, false,
                                         false, false, false, false };
 
-        for (unsigned int j=0; j<boxes.at(i).size(); j++)
+        for (size_t j=0; j<boxes.at(i).size(); j++)
         {
             if ( errorLine )
             {

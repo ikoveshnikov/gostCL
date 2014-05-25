@@ -14,7 +14,7 @@ LibGostCL::~LibGostCL()
 
 }
 
-bool LibGostCL::SetSBoxes(const std::vector<std::vector<int> > &boxes)
+bool LibGostCL::SetSBoxes(const std::vector<std::vector<C_U8> > &boxes)
 {
     SettingsHolder::Instance().SetSBoxes(boxes);
 

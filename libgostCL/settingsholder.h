@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-
+#include "crypt_types.h"
 #if defined (_MSC_VER)
 #define DELETED_MEMBER
 #elif defined(__GNUC__) || defined(__GNUG__)
@@ -17,8 +17,8 @@ public:
     //singleton pattern: {
     static SettingsHolder& Instance()
            {
-                   static SettingsHolder theSingleInstance;
-                   return theSingleInstance;
+                static SettingsHolder theSingleInstance;
+                return theSingleInstance;
            }
     // } singleton
 
@@ -50,12 +50,12 @@ public:
         //was sugested for ISO/IEC 18033-3 (international standartisation attempt of gost)
     }; //enum
 
-    bool SetSBoxes (const std::vector <std::vector <int> > & boxes);
+    bool SetSBoxes (const std::vector <std::vector <C_U8> > & boxes);
     bool SetStandartSBoxes (SBoxesID idSet = id_GostR3411_94_TestParamSet);
 
-    std::vector <std::vector <int> > GetSBoxes () const;
+    std::vector <std::vector <C_U8> > GetSBoxes () const;
 
-    static std::vector <std::vector <int> >
+    static std::vector <std::vector <C_U8> >
         GetStandartSBoxes (SBoxesID idSet = id_GostR3411_94_TestParamSet);
 
     bool SetKey (const std::string & key);
@@ -73,7 +73,7 @@ private:
 
     bool customSBoxesSet;
     std::string encryptionKey;
-    std::vector <std::vector <int> > sboxes;
+    std::vector <std::vector <C_U8> > sboxes;
     bool lastError;
 };
 

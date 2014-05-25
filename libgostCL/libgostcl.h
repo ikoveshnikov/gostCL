@@ -4,6 +4,7 @@
 #include "libgostcl_global.h"
 #include <vector>
 #include <string>
+#include "crypt_types.h"
 
 
 class LIBGOSTCLSHARED_EXPORT LibGostCL
@@ -22,7 +23,7 @@ public:
     LibGostCL();
     ~LibGostCL();
 
-    bool SetSBoxes (const std::vector <std::vector <int> > & boxes);
+    bool SetSBoxes (const std::vector <std::vector <C_U8> > & boxes);
 
     bool SetEncryptionKey (const std::string & key);
 

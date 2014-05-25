@@ -2,10 +2,15 @@
 #define CRYPTER_H
 
 #include "libgostcl.h"
-#include <cinttypes>
+#include "crypt_types.h"
 
-using C_U8 = unsigned char;
-using C_U32 = u_int32_t;
+struct gost_ctx //gost context for ocl implementation
+{
+    // encryption key
+    C_U32 k[8];
+    /* Constant s-boxes -- set up in kboxinit() */
+    C_U32 k87[256],k65[256],k43[256],k21[256];
+} ;
 
 class Crypter
 {

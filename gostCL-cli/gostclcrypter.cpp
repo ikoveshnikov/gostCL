@@ -133,5 +133,5 @@ bool GostCLCrypter::DecryptString (const std::string stringIn,
 
 bool GostCLCrypter::SetSBoxes ()
 {
-
+    return false;
 }
