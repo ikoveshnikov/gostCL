@@ -380,9 +380,9 @@ bool Crypter::RunOCL(gost_ctx &gostContext,
         cl::NDRange local(128);
         cl::NDRange offset = cl::NullRange;
 
-//        cl::Event event;
-        queue.enqueueNDRangeKernel(derypt_kernel, offset, global, local, NULL, 0); //&event);
-//        event.wait();
+        cl::Event event;
+        queue.enqueueNDRangeKernel(derypt_kernel, offset, globa+l, local, NULL, &event);
+        event.wait();
 
         // Copy the output data back to the host
         queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, outFile.size() * sizeof(int), &outFile[0]);
