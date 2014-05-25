@@ -58,6 +58,9 @@ bool GostCLCrypter::GrabEncryptionKey (const Operation encryptionMode)
 
 std::string GostCLCrypter::ReadStringConsole (bool confirm)
 {
+#ifdef DEBUG_BUILD
+    return std::string("0");
+#else
     if (true == confirm)
     {
         std::cout << "Enter password again: ";
@@ -72,6 +75,7 @@ std::string GostCLCrypter::ReadStringConsole (bool confirm)
     std::cin >> key;
 
     return key;
+#endif
 }
 
 bool GostCLCrypter::EncyptFile (const std::string fileNameIn,

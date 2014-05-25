@@ -218,11 +218,7 @@ bool Crypter::SetCryptKey()
         encryptionKey.resize(8);
     }
 
-    for (int i=0; i<8; i++)
-    {
-        encryptionKey.push_back(0);
-    }
-
+#ifndef DEBUG_BUILD
     size_t key_size = key.size();
 
     for (size_t i=0, j=0; i<8; i++,j+=4)
@@ -233,8 +229,9 @@ bool Crypter::SetCryptKey()
                            key.at((j+3) % key_size) << 24;
     }
 
-    return true;
+#endif
 
+    return true;
 }
 
 
@@ -242,7 +239,7 @@ bool Crypter::ContextInit(gost_ctx &context,
                           const std::vector <C_U32> encryptionKey,
                           const std::vector <std::vector <C_U8> > sboxes)
 {
-    if (encryptionKey.size() != 4)
+    if (encryptionKey.size() != 8)
     {
         return false;
     }
@@ -278,8 +275,8 @@ bool Crypter::ContextInit(gost_ctx &context,
 
 
 bool Crypter::RunOCL(gost_ctx &gostContext,
-                     const std::vector<C_U32> inFile,
-                     std::vector<C_U32> outFile,
+                     const std::vector<C_U32> &inFile,
+                     std::vector<C_U32> &outFile,
                      bool isDecrypt)
 {
     try {
@@ -377,14 +374,15 @@ bool Crypter::RunOCL(gost_ctx &gostContext,
         derypt_kernel.setArg(2, contextBuf);
 
         // Execute the kernel
+//        int maxRange = 1024;
         int maxRange = 1024;
         cl::NDRange global(maxRange);
         cl::NDRange local(128);
         cl::NDRange offset = cl::NullRange;
 
-        cl::Event event;
-        queue.enqueueNDRangeKernel(derypt_kernel, offset, global, local, NULL, &event);
-        event.wait();
+//        cl::Event event;
+        queue.enqueueNDRangeKernel(derypt_kernel, offset, global, local, NULL, 0); //&event);
+//        event.wait();
 
         // Copy the output data back to the host
         queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, outFile.size() * sizeof(int), &outFile[0]);
@@ -399,4 +397,5 @@ bool Crypter::RunOCL(gost_ctx &gostContext,
 
         return false;
       }
+    return true;
 }
