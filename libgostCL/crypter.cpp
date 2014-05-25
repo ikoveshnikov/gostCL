@@ -78,22 +78,7 @@ bool Crypter::Decrypt (const std::string input,
 bool Crypter::EncryptFile (const std::string  inputFile,
                            const std::string outputFile)
 {
-    if (!SetCryptKey())
-    {
-        return false;
-    }
-
-    const std::vector <std::vector <C_U8> > sboxes =
-            SettingsHolder::Instance().GetSBoxes();
-
-    errorCode = -1;
-    return false;
-}
-
-bool Crypter::DecryptFile (const std::string  inputFile,
-                           const std::string outputFile)
-{
-    if (operationMode != LibGostCL::CFB)
+    if (operationMode != LibGostCL::ECB)
     {
         errorCode = -1;
         return false;
@@ -130,87 +115,88 @@ bool Crypter::DecryptFile (const std::string  inputFile,
         outFile.push_back(0);
     }
 
+    gost_ctx gostContext;
 
-    try {
+    ContextInit(gostContext, encryptionKey, sboxes);
 
-           // Query for platforms
-        std::vector<cl::Platform> platforms;
-        cl::Platform::get(&platforms);
+    if (!RunOCL(gostContext, inFile, outFile, false))
+    {
+        return false;
+    }
 
-        // Get a list of devices on this platform
-        std::vector<cl::Device> devices;
-        platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
+    // write the result
+    std::ofstream out(outputFile, std::ios::binary);
+    for (i=0; i<outFile.size()-1; i++)
+    {
+        out.write(reinterpret_cast<char*>(&outFile[i]), sizeof(uint32_t));
+    }
+    if (outFile.at( outFile.size()-1 ) != 0)
+    {
+        out.write(reinterpret_cast<char*>(&outFile[outFile.size()-1]), sizeof(uint32_t));
+    }
 
-        // Create a context for the devices
-        cl::Context context(devices);
+    return true;
+}
 
-        // Create a command queue for the first device
-        cl::CommandQueue queue = cl::CommandQueue(context, devices[0]);
+bool Crypter::DecryptFile (const std::string  inputFile,
+                           const std::string outputFile)
+{
+    if (operationMode != LibGostCL::ECB)
+    {
+        errorCode = -1;
+        return false;
+    }
 
-        // Create the memory buffers
-        cl::Buffer inBuf = cl::Buffer(context, CL_MEM_READ_ONLY,
-                inFile.size() * sizeof(int));
-        cl::Buffer outBuf = cl::Buffer(context, CL_MEM_WRITE_ONLY,
-                outFile.size() * sizeof(int));
-        cl::Buffer keyBuf = cl::Buffer(context, CL_MEM_WRITE_ONLY,
-                encryptionKey.size() * sizeof(int));
+    if (!SetCryptKey())
+    {
+        return false;
+    }
 
-        // Copy the input data to the input buffers using the
-        // command queue for the first device
-        queue.enqueueWriteBuffer(inBuf, CL_TRUE, 0,
-                                 inFile.size() * sizeof(int),
-                                 &inFile[0]);
-        queue.enqueueWriteBuffer(keyBuf, CL_TRUE, 0,
-                                 encryptionKey.size() * sizeof(int),
-                                 &encryptionKey[0]);
-
-        // Read the program source
-        std::ifstream sourceFile("gostdecrypt.cl");
-
-        std::string sourceCode( std::istreambuf_iterator<char>(sourceFile),
-            (std::istreambuf_iterator<char>()));
-        cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(),
-            sourceCode.length()+1));
-
-        // Make program from the source code
-        cl::Program program = cl::Program(context, source);
-
-        // Build the program for the devices
-        program.build(devices);
-
-        // Make kernel
-        cl::Kernel vecadd_kernel(program, "decrypt");
-
-        // Set the kernel arguments
-        vecadd_kernel.setArg(0, inBuf);
-        vecadd_kernel.setArg(1, outBuf);
-        vecadd_kernel.setArg(2, keyBuf);
-
-        // Execute the kernel
-        cl::NDRange global(inFile.size()/2);
-        cl::NDRange local(128);
-        queue.enqueueNDRangeKernel(vecadd_kernel, cl::NullRange, global, local);
-
-        // Copy the output data back to the host
-        queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, outFile.size() * sizeof(int), &outFile[0]);
-
-        // Verify the result
-        std::ofstream out(outputFile, std::ios::binary);
-
-        for (i=0; i<inFile.size(); i++)
-        {
-            out.write(reinterpret_cast<char*>(&inFile[i]), sizeof(uint32_t));
-        }
-
-      }
-      catch(cl::Error error)
-      {
-        std::cout << error.what() << "(" <<
-          error.err() << ")" << std::endl;
-      }
+    const std::vector <std::vector <C_U8> > sboxes =
+            SettingsHolder::Instance().GetSBoxes();
 
 
 
+    std::ifstream in(inputFile, std::ios::binary);
+    std::vector<C_U32> inFile, outFile;
+
+    inFile.reserve(10000);
+    outFile.reserve(10000);
+
+    size_t i = 0;
+    while (!in.eof())
+    {
+        inFile.push_back(0);
+        outFile.push_back(0);
+        in.read(reinterpret_cast<char*>(&inFile[i]), sizeof(uint32_t));
+        i++;
+    }
+
+    if (inFile.size() % 2 == 1)
+    {
+        inFile.push_back(0);
+        outFile.push_back(0);
+    }
+
+    gost_ctx gostContext;
+
+    ContextInit(gostContext, encryptionKey, sboxes);
+
+    if (!RunOCL(gostContext, inFile, outFile, true))
+    {
+        return false;
+    }
+
+    // write the result
+    std::ofstream out(outputFile, std::ios::binary);
+    for (i=0; i<outFile.size()-1; i++)
+    {
+        out.write(reinterpret_cast<char*>(&outFile[i]), sizeof(uint32_t));
+    }
+    if (outFile.at( outFile.size()-1 ) != 0)
+    {
+        out.write(reinterpret_cast<char*>(&outFile[outFile.size()-1]), sizeof(uint32_t));
+    }
 
     return true;
 }
@@ -249,4 +235,168 @@ bool Crypter::SetCryptKey()
 
     return true;
 
+}
+
+
+bool Crypter::ContextInit(gost_ctx &context,
+                          const std::vector <C_U32> encryptionKey,
+                          const std::vector <std::vector <C_U8> > sboxes)
+{
+    if (encryptionKey.size() != 4)
+    {
+        return false;
+    }
+
+    if (sboxes.size() != 8)
+    {
+        return false;
+    }
+
+    for (size_t i=0; i<sboxes.size(); i++)
+    {
+        if (sboxes.at(i).size() != 16)
+        {
+            return false;
+        }
+    }
+
+    for (size_t i=0; i<8; i++)
+    {
+        context.k[i] = encryptionKey.at(i);
+    }
+
+    for (size_t i = 0; i < 256; i++)
+    {
+        context.k87[i] = (sboxes.at(7).at(i>>4) <<4  | sboxes.at(6).at(i &15))<<24;
+        context.k65[i] = (sboxes.at(5).at(i>>4) <<4  | sboxes.at(4).at(i &15))<<16;
+        context.k43[i] = (sboxes.at(3).at(i>>4) <<4  | sboxes.at(2).at(i &15))<<8;
+        context.k21[i] =  sboxes.at(1).at(i>>4) <<4  | sboxes.at(0).at(i &15);
+    }
+
+    return true;
+}
+
+
+bool Crypter::RunOCL(gost_ctx &gostContext,
+                     const std::vector<C_U32> inFile,
+                     std::vector<C_U32> outFile,
+                     bool isDecrypt)
+{
+    try {
+        // Query for platforms
+        std::vector<cl::Platform> platforms;
+        cl::Platform::get(&platforms);
+
+        // Get a list of devices on this platform
+        std::vector<cl::Device> devices;
+        platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
+
+        // Create a context for the devices
+        cl::Context context(devices);
+
+        // Create a command queue for the first device
+        cl::CommandQueue queue = cl::CommandQueue(context, devices[0]);
+
+        // Create the memory buffers
+        cl::Buffer inBuf = cl::Buffer(context, CL_MEM_READ_ONLY,
+                inFile.size() * sizeof(C_U32));
+        cl::Buffer outBuf = cl::Buffer(context, CL_MEM_WRITE_ONLY,
+                outFile.size() * sizeof(C_U32));
+        cl::Buffer contextBuf = cl::Buffer(context, CL_MEM_WRITE_ONLY,
+                sizeof(gostContext));
+
+        // Copy the input data to the input buffers using the
+        // command queue for the first device
+        queue.enqueueWriteBuffer(inBuf, CL_TRUE, 0,
+                                 inFile.size() * sizeof(C_U32),
+                                 &inFile[0]);
+        queue.enqueueWriteBuffer(contextBuf, CL_TRUE, 0,
+                                 sizeof(gostContext),
+                                 &gostContext);
+
+        // Read the program source
+        std::ifstream sourceFile("gostdecrypt.cl");
+
+        std::string sourceCode( std::istreambuf_iterator<char>(sourceFile),
+            (std::istreambuf_iterator<char>()));
+        cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(),
+            sourceCode.length()+1));
+
+        // Make program from the source code
+        cl::Program program = cl::Program(context, source);
+
+        // Build the program for the devices
+        try
+        {
+            program.build(devices);
+        }
+        catch(cl::Error error)
+        {
+            if(error.err() == CL_BUILD_PROGRAM_FAILURE)
+            {
+                std::cout << "Build log:" << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]) << std::endl;
+            }
+            throw error;
+        }
+
+        std::string function;
+
+
+        if (isDecrypt)
+        {
+            function.append("decrypt");
+        }
+        else
+        {
+            function.append("encrypt");
+        }
+
+        switch (operationMode)
+        {
+        case LibGostCL::ECB:
+            break;
+        case LibGostCL::CBC:
+            function.append("_cbc");
+            break;
+        case LibGostCL::OFB:
+            function.append("_ofb");
+            break;
+        case LibGostCL::CFB:
+            function.append("_cfb");
+            break;
+        default:
+            break;
+        }
+
+        // Make kernel
+        cl::Kernel derypt_kernel(program, function.c_str());
+
+        // Set the kernel arguments
+        derypt_kernel.setArg(0, inBuf);
+        derypt_kernel.setArg(1, outBuf);
+        derypt_kernel.setArg(2, contextBuf);
+
+        // Execute the kernel
+        int maxRange = 1024;
+        cl::NDRange global(maxRange);
+        cl::NDRange local(128);
+        cl::NDRange offset = cl::NullRange;
+
+        cl::Event event;
+        queue.enqueueNDRangeKernel(derypt_kernel, offset, global, local, NULL, &event);
+        event.wait();
+
+        // Copy the output data back to the host
+        queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, outFile.size() * sizeof(int), &outFile[0]);
+
+      }
+      catch(cl::Error error)
+      {
+        std::cout << error.what() << "(" <<
+          error.err() << ")" << std::endl;
+
+        errorCode = 100 + (-1 * error.err());
+
+        return false;
+      }
 }
