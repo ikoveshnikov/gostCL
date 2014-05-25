@@ -305,8 +305,6 @@ int main(int argc, char *argv[])
 
     if (1 == encrypt)
     {
-        gcrypter.GrabEncryptionKey(GostCLCrypter::Encrypt);
-
         if (customSBoxes)
         {
             gcrypter.SetSBoxes();
