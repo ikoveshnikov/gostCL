@@ -12,6 +12,7 @@ TARGET = libgostCL
 TEMPLATE = lib
 
 DEFINES += LIBGOSTCL_LIBRARY
+CONFIG(debug, debug|release): DEFINES += DEBUG_BUILD
 
 DESTDIR = ../output
 

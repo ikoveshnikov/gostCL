@@ -14,7 +14,12 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
+
+CONFIG(debug, debug|release): DEFINES += DEBUG_BUILD
+
+
 DESTDIR = ../output
+
 
 SOURCES += main.cpp \
     gostclcrypter.cpp
