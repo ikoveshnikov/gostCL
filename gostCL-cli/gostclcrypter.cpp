@@ -60,11 +60,11 @@ std::string GostCLCrypter::ReadStringConsole (bool confirm)
 {
     if (true == confirm)
     {
-        std::cout << "Enter password again: " << std::endl;
+        std::cout << "Enter password again: ";
     }
     else
     {
-        std::cout << "Enter encryption password: " << std::endl;
+        std::cout << "Enter encryption password: ";
     }
 
     std::string key;
@@ -75,8 +75,9 @@ std::string GostCLCrypter::ReadStringConsole (bool confirm)
 }
 
 bool GostCLCrypter::EncyptFile (const std::string fileNameIn,
-                                const std::string fileNameOut, const std::string modeOfOperation,
-                                int treads,
+                                const std::string fileNameOut,
+                                const std::string modeOfOperation,
+                                int threads,
                                 int threadSize)
 {
     if (0 == clCrypter)
@@ -84,14 +85,22 @@ bool GostCLCrypter::EncyptFile (const std::string fileNameIn,
         return false;
     }
 
+    GrabEncryptionKey(Encrypt);
+
+    clCrypter->SetEncryptionKey(encryptionKey);
+
+    clCrypter->Encrypt(fileNameIn, fileNameOut,
+                       clCrypter->ParseModeOfOperation(modeOfOperation),
+                       threads, threadSize);
 
     return true;
 }
 
 bool GostCLCrypter::DecryptFile (const std::string fileNameIn,
-                                const std::string fileNameOut, const std::string modeOfOperation,
-                                int threads,
-                                int threadSize)
+                                 const std::string fileNameOut,
+                                 const std::string modeOfOperation,
+                                 int threads,
+                                 int threadSize)
 {
     if (0 == clCrypter)
     {
@@ -111,7 +120,8 @@ bool GostCLCrypter::DecryptFile (const std::string fileNameIn,
 }
 
 bool GostCLCrypter::EncyptString (const std::string stringIn,
-                                  std::string stringOut, const std::string modeOfOperation)
+                                  std::string stringOut,
+                                  const std::string modeOfOperation)
 {
     if (0 == clCrypter)
     {
@@ -122,7 +132,8 @@ bool GostCLCrypter::EncyptString (const std::string stringIn,
 }
 
 bool GostCLCrypter::DecryptString (const std::string stringIn,
-                                  std::string stringOut, const std::string modeOfOperation)
+                                   std::string stringOut,
+                                   const std::string modeOfOperation)
 {
     if (0 == clCrypter)
     {
