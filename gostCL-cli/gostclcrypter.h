@@ -26,7 +26,7 @@ public:
     bool EncyptFile (const std::string fileNameIn,
                      const std::string fileNameOut,
                      const std::string modeOfOperation,
-                     int treads = 1,
+                     int threads = 1,
                      int threadSize = -1);
 
     bool DecryptFile (const std::string fileNameIn,
