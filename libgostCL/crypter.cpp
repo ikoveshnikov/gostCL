@@ -378,11 +378,20 @@ bool Crypter::RunOCL(gost_ctx &gostContext,
         int maxRange = 1024;
         cl::NDRange global(maxRange);
         cl::NDRange local(128);
-        cl::NDRange offset = cl::NullRange;
+//        cl::NDRange offset = cl::NullRange;
 
-        cl::Event event;
-        queue.enqueueNDRangeKernel(derypt_kernel, offset, globa+l, local, NULL, &event);
-        event.wait();
+//        cl::Event event;
+//        queue.enqueueNDRangeKernel(derypt_kernel, offset, global, local, NULL, &event);
+//        event.wait();
+
+        for (size_t lastProcessedData = 0; lastProcessedData < inFile.size(); lastProcessedData+= maxRange)
+        {
+            queue.enqueueNDRangeKernel(derypt_kernel, cl::NDRange(lastProcessedData), global, local, NULL, NULL);
+            queue.flush();
+        }
+        queue.finish();
+
+
 
         // Copy the output data back to the host
         queue.enqueueReadBuffer(outBuf, CL_TRUE, 0, outFile.size() * sizeof(int), &outFile[0]);
